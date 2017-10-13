@@ -8,5 +8,7 @@
     rabbitMQ: http://bigdata008:15672  guest/guest
     
 三、common
-    http://bigdata010:15672/
-    rabbitMQ: http://bigdata010:15672  guest/guest
+    rabbitMQ:   http://bigdata010:15672  guest/guest
+    jenkins:    http://bigdata010:8080/jenkins/login?from=%2Fjenkins%2Flogin  admin/Pioneer@123
+    gitlab:     http://bigdata010:10080/users/sign_in  自己的用户名和密码
+    upsource:   http://bigdata010:10008
