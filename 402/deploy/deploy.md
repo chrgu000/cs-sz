@@ -5,6 +5,8 @@
 *[kubenetes部署](kubenetes.md.md)
 *[kubenetes-ui部署](kub-ui/kub-ui.md)
 
+*[?kubenetes-DNS部署](kubedns/kubedns.md)
+
 ------
 *[gitlab部署](gitlab.md)
 *[rabbitMQ部署](rabbitMQ.md)

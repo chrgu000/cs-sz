@@ -9,7 +9,7 @@
     systemctl stop firewalld && systemctl disable firewalld
     
 2.修改机器名称,不用重启机器就能看到修改的办法
-     hostnamectl --static set-hostname bigdata03
+     hostnamectl --static set-hostname bigdata001
 
 
 3.配置hosts文件
