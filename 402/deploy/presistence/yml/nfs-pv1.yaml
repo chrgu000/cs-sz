@@ -10,5 +10,5 @@ spec:
   persistentVolumeReclaimPolicy: Recycle
   nfs:
     path: "/data/nfs"
-    server: 10.99.22.24
+    server: 10.99.21.24
     readOnly: false
