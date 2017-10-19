@@ -59,6 +59,7 @@ Persistent Volume（持久卷）和Persistent Volume Claim（持久卷消费者�
 
     NFS路径：/data/disk001
     本地路径：/cloudstar/data/disk001
+    mount -t nfs 10.99.22.24:/data/nfs /mnt/nfs
 
 1.持久卷定义
     *[](../../../yml/nfs-pv1.yaml)
