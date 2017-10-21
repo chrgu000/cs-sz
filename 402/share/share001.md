@@ -20,9 +20,8 @@ gitlab中把项目分开
 9.sonar-project.properties如果使用sonar进行代码检查需要配置
 10.build_push_deploy_jenkins_k8s_402.sh是Jenkins调用的入口脚本
 ```
-
-
 ##webstorm规划
+![](images/webstorm02.png)
 ![](images/webstorm01.png)
 
 
