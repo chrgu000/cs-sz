@@ -21,6 +21,15 @@ gitlab中把项目分开
 10.build_push_deploy_jenkins_k8s_402.sh是Jenkins调用的入口脚本
 ```
 
+
+##webstorm规划
+![](images/webstorm01.png)
+
+
+
+
+
+
 ##gitlab后端项目规划
 ![](images/gitlabBackend.png)
 ```
