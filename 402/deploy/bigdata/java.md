@@ -11,8 +11,9 @@
     ssh bigdata010 'mkdir -p /cloudstar/software/'
 
 1.安装jdk 
-
 配置环境变量
+    vim　~/.bashrc
+    配置如下内容：
     export JAVA_HOME=/cloudstar/software/jdk1.8.0_151
     export PATH=$PATH:$JAVA_HOME/bin
 测试环境变量
