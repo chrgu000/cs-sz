@@ -1,20 +1,5 @@
-*[机器基本设置](basic.md)
-*[docker部署](docker.md)
-*[etcd部署](etcd.md)
-*[flannel部署](flannel/flannel.md)
-*[kubenetes部署](kubenetes.md.md)
-*[kubenetes-ui部署](kub-ui/kub-ui.md)
-*[?kubenetes-DNS部署](kubedns/kubedns.md)
-*[?presistence部署](presistence/persistence.md)
-
-------
-
-*[gitlab部署](gitlab.md)
-*[rabbitMQ部署](rabbitMQ.md)
-*[mysql部署](mysql.md)
-*[redis部署](redis.md)
-
-
+*[云计算部署](cloudcomputing/cloudcomputing.md)
+*[大数据部署](bigdata/bigdata.md)
 
 
 
