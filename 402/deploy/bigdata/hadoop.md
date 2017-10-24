@@ -1,222 +1,259 @@
 
-1.下载解压
-    cd /cloudstar/software
+一、规划和策略
+    bigdata001    master
+    bigdata002    master
+    bigdata003    slave
+    bigdata004    slave
+    bigdata005    slave
+   在bigdata001上配置，而后同步到其他机器上。
+二、下载hadoop
     wget http://mirror.bit.edu.cn/apache/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz
-    tar -zxvf hadoop-3.0.0-beta1.tar.gz 
-2.环境变量
-    
-一、hadoop配置部分
-1.修改Hadoop配置文件
-    命令如下：
-    vim ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml
-    添加如下内容如下：
-    <property>
-        <name>dfs.webhdfs.enabled</name>
-        <value>true</value>
-    </property>
-2.分发配置文件
-    scp ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml bigdata7:/${HADOOP_HOME}/etc/hadoop/hdfs-site.xml
-    scp ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml bigdata8:/${HADOOP_HOME}/etc/hadoop/hdfs-site.xml
-    scp ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml bigdata9:/${HADOOP_HOME}/etc/hadoop/hdfs-site.xml
-3.重启Hadoop
-    3.1重启HDFS
-        ${HADOOP_HOME}/sbin/stop-dfs.sh
-        ${HADOOP_HOME}/sbin/start-dfs.sh
-    3.2重启YARN
-        ${HADOOP_HOME}/sbin/stop-yarn.sh
-        ${HADOOP_HOME}/sbin/start-yarn.sh
+三、解压hadoop
+    tar -zxvf  hadoop-3.0.0-beta1.tar.gz  
+四、分发hadoop
+    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata002:/cloudstar/software/
+    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata003:/cloudstar/software/
+    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata004:/cloudstar/software/
+    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata005:/cloudstar/software/
+五、配置hadoop
+    1.配置hadoop的运行环境
+            vim ${HADOOP_HOME}/etc/hadoop/hadoop-env.sh
+            在此文件中只需要配置jdk的路径即可：
+            找到: export java_home=${java_home}这一行，修改为：
+            export java_home=/bigdata/software/jdk1.8.0_74  #jdk实际安装目录是/bigdata/software/jdk1.8.0_74
 
-4.下载，解压knox,配置KNOX
- 根据提示配置相应的hostname
- wget  http://apache.fayea.com/knox/0.8.0/knox-0.8.0.tar.gz
- chmod 777 knox-0.8.0.tar.gz
- tar -zxvf knox-0.8.0.tar.gz
- cd /bigdata/software/knox-0.8.0/conf/
- vim /bigdata/software/knox-0.8.0/conf/topologies/sandbox.xml
-二、KNOX配置部分
-5.KNOX服务启动
-    cd /bigdata/software/knox-0.8.0/bin
-    5.1启动嵌入式ldap
-        启动命令：
-            ./ldap.sh start
-        回显如下：
-            Starting LDAP succeeded with PID 50563.
-    5.2创建knox的gate-way实例
-        创建命令：
-             ./knoxcli.sh  create-master
-         回显如下：
-             回显中提示输入密码，本利中输入的密码是bigdata
-             ***************************************************************************************************
-            You have indicated that you would like to persist the master secret for this service instance.
-            Be aware that this is less secure than manually entering the secret on startup.
-            The persisted file will be encrypted and primarily protected through OS permissions.
-            ***************************************************************************************************
-            Enter master secret:
-            Enter master secret again:
-            Master secret has been persisted to disk.
-    5.3启动knox-gateway
-        改变所属和权限
-            chmod -R ugo+rwx knox-0.8.0/
-            chown -R bigdata knox-0.8.0
-        以bigdata用户只需程序（此程序不能以root用户执行，因此需要在root用户的CLI下只需如下指令）
-            su bigdata -l -c "/bigdata/software/knox-0.8.0/bin/gateway.sh start"
-    5.4常用命令
-            su bigdata -l -c "/bigdata/software/knox-0.8.0/bin/gateway.sh start"
-            su bigdata -l -c "/bigdata/software/knox-0.8.0/bin/gateway.sh stop"
-            su bigdata -l -c "/bigdata/software/knox-0.8.0/bin/gateway.sh status"
-            su bigdata -l -c "/bigdata/software/knox-0.8.0/bin/gateway.sh clean"
-            注意：
-            NOTE: This command will also clear any .out and .err file from the {GATEWAY_HOME}/logs directory so use this with caution.
-6.验证启动
-    6.1查看监听端口
-         netstat -lunt
-         能有如下信息
-        tcp6       0      0 :::8443                 :::*                    LISTEN
-    6.2CURL获取HDFS状态
-          curl -i -k -u guest:guest-password -X GET  'https://bigdata6:8443/gateway/sandbox/webhdfs/v1/?op=LISTSTATUS'
-        回显如下：我们可以抗到HDFS文件系统的信息
-            HTTP/1.1 200 OK
-            Set-Cookie: JSESSIONID=r7ctpupb8cvv1ekkuv3pu8khe;Path=/gateway/sandbox;Secure;HttpOnly
-            Expires: Thu, 01 Jan 1970 00:00:00 GMT
-            Cache-Control: no-cache
-            Expires: Fri, 01 Apr 2016 07:23:13 GMT
-            Date: Fri, 01 Apr 2016 07:23:13 GMT
-            Pragma: no-cache
-            Expires: Fri, 01 Apr 2016 07:23:13 GMT
-            Date: Fri, 01 Apr 2016 07:23:13 GMT
-            Pragma: no-cache
-            Server: Jetty(6.1.26)
-            Content-Type: application/json
-            Transfer-Encoding: chunked
+    2.配置hadoop的核心配置文件
+            vim ${HADOOP_HOME}/etc/hadoop/core-site.xml
+            将其中的<configuration></configuration>修改为如下内容即可.
+            <configuration>
+                <property>
+                    <name>fs.defaultfs</name>
+                    <value>hdfs://cluster1</value>
+                </property>
+                <property>
+                    <name>hadoop.tmp.dir</name>
+                     <value>/cloudstar/software/hadoop-3.0.0-beta1/tmp</value>
+                </property>
+                <property>
+                    <name>ha.zookeeper.quorum</name>
+                    <value>bigdata001:2181,bigdata002:2181,bigdata003:2181</value>
+                </property>
+            </configuration>
 
-            {"FileStatuses":{"FileStatus":[{"accessTime":0,"blockSize":0,"childrenNum":1,"fileId":16449,"group":"supergroup","length":0,"modificationTime":1459333745586,"owner":"root","pathSuffix":"data","permission":"755","replication":0,"storagePolicy":0,"type":"DIRECTORY"},{"accessTime":0,"blockSize":0,"childrenNum":7,"fileId":16386,"group":"supergroup","length":0,"modificationTime":1459414365085,"owner":"root","pathSuffix":"hbase","permission":"755","replication":0,"storagePolicy":0,"type":"DIRECTORY"},{"accessTime":0,"blockSize":0,"childrenNum":2,"fileId":16446,"group":"supergroup","length":0,"modificationTime":1459222589726,"owner":"root","pathSuffix":"history","permission":"770","replication":0,"storagePolicy":0,"type":"DIRECTORY"},{"accessTime":0,"blockSize":0,"childrenNum":3,"fileId":16389,"group":"supergroup","length":0,"modificationTime":1459332722472,"owner":"root","pathSuffix":"tmp","permission":"733","replication":0,"storagePolicy":0,"type":"DIRECTORY"},{"accessTime":0,"blockSize":0,"childrenNum":1,"fileId":16404,"group":"supergroup","length":0,"modificationTime":1459154498158,"owner":"root","pathSuffix":"user","permission":"755","replication":0,"storagePolicy":0,"type":"DIRECTORY"}]}}
-    6.3浏览器获取    HDFS状态
-        浏览器请求如下URL，需要输入账号和密码，账号为：guest 密码为：guest-password
-        https://bigdata6:8443/gateway/sandbox/webhdfs/v1/?op=LISTSTATUS
-        可以看到如下界面：
+         3.配置hdfs的配置文件
+            vim ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml
+            将其中的<configuration></configuration>修改为如下内容即可.
+             <configuration>
+                <property>
+                    <name>dfs.webhdfs.enabled</name>
+                    <value>true</value>
+                </property>
+                <property>
+                        <name>dfs.replication</name>
+                        <value>3</value>
+                </property>
+                <property>
+                        <name>dfs.nameservices</name>
+                        <value>cluster1</value>
+                </property>
+                <property>
+                        <name>dfs.ha.namenodes.cluster1</name>
+                        <value>bigdata001,bigdata002</value>
+                </property>
+                <property>
+                        <name>dfs.namenode.rpc-address.cluster1.bigdata001</name>
+                        <value>bigdata001:9000</value>
+                </property>
+                <property>
+                        <name>dfs.namenode.http-address.cluster1.bigdata001</name>
+                        <value>bigdata001:50070</value>
+                </property>
+                <property>
+                        <name>dfs.namenode.rpc-address.cluster1.bigdata002</name>
+                        <value>bigdata002:9000</value>
+                </property>
+                <property>
+                        <name>dfs.namenode.http-address.cluster1.bigdata002</name>
+                        <value>bigdata002:50070</value>
+                </property>
+                <property>
+                        <name>dfs.namenode.shared.edits.dir</name>
+                        <value>qjournal://bigdata001:8485;bigdata002:8485/cluster1</value>
+                </property>
+                <property>
+                        <name>dfs.journalnode.edits.dir</name>
+                        <value>/cloudstar/software/hadoop-3.0.0-beta1/tmp/journal</value>
+                </property>
+                <property>
+                        <name>dfs.ha.automatic-failover.enabled.cluster1</name>
+                        <value>true</value>
+                </property>
+                <property>
+                        <name>dfs.client.failover.proxy.provider.cluster1</name>
+                        <value>org.apache.hadoop.hdfs.server.namenode.ha.configuredfailoverproxyprovider</value>
+                </property>
+                <property>
+                        <name>dfs.ha.fencing.methods</name>
+                        <value>sshfence</value>
+                </property>
+                <property>
+                        <name>dfs.ha.fencing.ssh.private-key-files</name>
+                        <value>/root/.ssh/id_rsa</value>
+                </property>
+                <property> 
+                        <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
+                        <value>false</value>
+                </property>
+             </configuration>
 
-三、Hadoop与KNOX集成实验部分
-7.hdfs操作
-    7.1：删除HDFS中的文件夹/user/guest/example
-    命令如下：
-        curl -i -k -u guest:guest-password -X DELETE 'https://bigdata6:8443/gateway/sandbox/webhdfs/v1/user/guest/example?op=DELETE&recursive=true'
-    回显如下：
-        HTTP/1.1 200 OK
-        Set-Cookie: JSESSIONID=19sljea4zx9vlgz5xq0vu66dr;Path=/gateway/sandbox;Secure;HttpOnly
-        Expires: Thu, 01 Jan 1970 00:00:00 GMT
-        Cache-Control: no-cache
-        Expires: Fri, 01 Apr 2016 07:51:54 GMT
-        Date: Fri, 01 Apr 2016 07:51:54 GMT
-        Pragma: no-cache
-        Expires: Fri, 01 Apr 2016 07:51:54 GMT
-        Date: Fri, 01 Apr 2016 07:51:54 GMT
-        Pragma: no-cache
-        Server: Jetty(6.1.26)
-        Content-Type: application/json
-        Transfer-Encoding: chunked
+        4.配置机器中从节点
+            vim ${HADOOP_HOME}/etc/hadoop/workers
+            此文件中配置的是hadoop集群中从节点，一行指定一个从节点.
+                bigdata001
+                bigdata002
+                bigdata003
+                bigdata004
+                bigdata005
 
-     7.2：Register the name for a sample file README in /user/guest/example
-        命令如下：
-            curl -i -k -u guest:guest-password -X PUT 'https://bigdata6:8443/gateway/sandbox/webhdfs/v1/user/guest/example/README?op=CREATE'
-        回显如下：
-            HTTP/1.1 307 Temporary Redirect
-            Set-Cookie: JSESSIONID=zsd3hdcj4y61u1yw3vdtsdmw;Path=/gateway/sandbox;Secure;HttpOnly
-            Expires: Thu, 01 Jan 1970 00:00:00 GMT
-            Cache-Control: no-cache
-            Expires: Fri, 01 Apr 2016 07:54:14 GMT
-            Date: Fri, 01 Apr 2016 07:54:14 GMT
-            Pragma: no-cache
-            Expires: Fri, 01 Apr 2016 07:54:14 GMT
-            Date: Fri, 01 Apr 2016 07:54:14 GMT
-            Pragma: no-cache
-            Location: https://bigdata6:8443/gateway/sandbox/webhdfs/data/v1/webhdfs/v1/user/guest/example/README?_=AAAACAAAABAAAABwcxIpXspp-mgu_KW2yUgnh4LyVE-Lja3PXqvmf55-bqFM5u42b1WgvqLym6JMd6OZQOS6pkgMzzyQeCCvAkXynJKyN2VWn4oLkR7yKDwxatQTkwOCTPfbNs3odqjyGP47Fav7h3D7EU2jLDeXiG3eeCad4ZmDHM5TlGQgcu8xtR5m9fJmCv4xtA
-            Server: Jetty(6.1.26)
-            Content-Type: application/octet-stream
-            Transfer-Encoding: chunked
 
-     7.3：Upload README to /user/guest/example. Use the README in {GATEWAY_HOME}
-        命令如下：
-            curl -i -k -u  guest:guest-password -T README -X PUT '{https://bigdata6:8443/gateway/sandbox/webhdfs/data/v1/webhdfs/v1/user/guest/example/README?_=AAAACAAAABAAAABwcxIpXspp-mgu_KW2yUgnh4LyVE-Lja3PXqvmf55-bqFM5u42b1WgvqLym6JMd6OZQOS6pkgMzzyQeCCvAkXynJKyN2VWn4oLkR7yKDwxatQTkwOCTPfbNs3odqjyGP47Fav7h3D7EU2jLDeXiG3eeCad4ZmDHM5TlGQgcu8xtR5m9fJmCv4xtA}'
-        回显如下：
-            HTTP/1.1 100 Continue
-            HTTP/1.1 201 Created
-            Set-Cookie: JSESSIONID=13611xoonu0xd1oyr1ik0m11a5;Path=/gateway/sandbox;Secure;HttpOnly
-            Expires: Thu, 01 Jan 1970 00:00:00 GMT
-            Location: hdfs://cluster1/user/guest/example/README
-            Connection: close
-            Server: Jetty(8.1.14.v20131031)
-        如果出现Hadoop中的HDFS权限异常，可以执行如下操作：
-            hadoop fs -chmod -R 777 /user/
-        执行效果：
-           可以在HDFS中创建/user/guest/example/README文件
-     7.4：Request the content of the README file in /user/guest/example
-        命令如下：
-            curl -i -k -u guest:guest-password -X GET 'https://localhost:8443/gateway/sandbox/webhdfs/v1/user/guest/example/README?op=OPEN'
-        回显如下：
-            HTTP/1.1 307 Temporary Redirect
-            Set-Cookie: JSESSIONID=14w7b47cyjuz91fqm4bf33ikio;Path=/gateway/sandbox;Secure;HttpOnly
-            Expires: Thu, 01 Jan 1970 00:00:00 GMT
-            Cache-Control: no-cache
-            Expires: Fri, 01 Apr 2016 08:15:34 GMT
-            Date: Fri, 01 Apr 2016 08:15:34 GMT
-            Pragma: no-cache
-            Expires: Fri, 01 Apr 2016 08:15:34 GMT
-            Date: Fri, 01 Apr 2016 08:15:34 GMT
-            Pragma: no-cache
-            Location: https://localhost:8443/gateway/sandbox/webhdfs/data/v1/webhdfs/v1/user/guest/example/README?_=AAAACAAAABAAAABwcxIpXspp-mgu_KW2yUgnh4LyVE-Lja3PXqvmf55-bqFM5u42b1WgvqLym6JMd6OZQOS6pkgMzzwM0BX7EwJPGlwjcHAp5YT925k9PlHTXaLBu4H9lcHwbEn9See3he5qmPJaUvU3C3VV9AXsgzaPsWxk1gsW2b7X1A7RyZ3rgj1m88to5pAj-g
-            Server: Jetty(6.1.26)
-            Content-Type: application/octet-stream
-            Transfer-Encoding: chunked
+        5.配置hadoop2的计算框架
+                    vim ${HADOOP_HOME}/etc/hadoop/mapred-site.xml
+                  将其中的<configuration></configuration>修改为如下内容即可.
+                  <configuration>
+                        <property>
+                            <name>mapreduce.framework.name</name>
+                            <value>yarn</value>
+                        </property>
+                        <property>
+                          <name>mapreduce.jobhistory.address</name>
+                          <value>bigdata001:10020</value>
+                          <description>mapreduce jobhistory server ipc host:port</description>
+                        </property>
+                        <property>
+                          <name>mapreduce.jobhistory.webapp.address</name>
+                          <value>bigdata001:19888</value>
+                          <description>mapreduce jobhistory server web ui host:port</description>
+                        </property>
+                        <property>
+                            <name>mapreduce.jobhistory.done-dir</name>
+                            <value>/history/done</value>
+                        </property>
+                        <property>
+                            <name>mapreduce.jobhistory.intermediate-done-dir</name>
+                            <value>/history/done_intermediate</value>
+                        </property>
+                  </configuration>
+         6.配置hadoop2的yarn计算框架
+            vim ${HADOOP_HOME}/etc/hadoop/yarn-site.xml
+            将其中的<configuration></configuration>修改为如下内容即可.
+            a.无yarn-ha的配置方法
+                  <configuration>
+                    <property>
+                        <name>yarn.resourcemanager.hostname</name>
+                        <value>bigdata001</value>
+                    </property>
+                    <property>
+                        <name>yarn.nodemanager.aux-services</name>
+                        <value>mapreduce_shuffle</value>
+                    </property>
+                  </configuration>
 
-     7.5：Request the content of the README file in /user/guest/example
-        命令如下：
-            curl -i -k -u guest:guest-password -X GET '{https://localhost:8443/gateway/sandbox/webhdfs/data/v1/webhdfs/v1/user/guest/example/README?_=AAAACAAAABAAAABwcxIpXspp-mgu_KW2yUgnh4LyVE-Lja3PXqvmf55-bqFM5u42b1WgvqLym6JMd6OZQOS6pkgMzzwM0BX7EwJPGlwjcHAp5YT925k9PlHTXaLBu4H9lcHwbEn9See3he5qmPJaUvU3C3VV9AXsgzaPsWxk1gsW2b7X1A7RyZ3rgj1m88to5pAj-g}'
-        回显如下：
-            HTTP/1.1 200 OK
-            Set-Cookie: JSESSIONID=of4tpetyeaqy1sfwck450wvwb;Path=/gateway/sandbox;Secure;HttpOnly
-            Expires: Thu, 01 Jan 1970 00:00:00 GMT
-            Access-Control-Allow-Methods: GET
-            Access-Control-Allow-Origin: *
-            Content-Type: application/octet-stream
-            Connection: close
-            Server: Jetty(8.1.14.v20131031)
-            /*以下是README文件中的内容*/
-     7.6：Optionally cleanup the example directory
-        命令如下：
-            curl -i -k -u guest:guest-password -X DELETE 'https://localhost:8443/gateway/sandbox/webhdfs/v1/user/guest/example?op=DELETE&recursive=true'
-        回显如下：
-            HTTP/1.1 200 OK
-            Set-Cookie: JSESSIONID=dvvs9r1mk5ic1lhf6sabnj4w;Path=/gateway/sandbox;Secure;HttpOnly
-            Expires: Thu, 01 Jan 1970 00:00:00 GMT
-            Cache-Control: no-cache
-            Expires: Fri, 01 Apr 2016 08:19:31 GMT
-            Date: Fri, 01 Apr 2016 08:19:31 GMT
-            Pragma: no-cache
-            Expires: Fri, 01 Apr 2016 08:19:31 GMT
-            Date: Fri, 01 Apr 2016 08:19:31 GMT
-            Pragma: no-cache
-            Server: Jetty(6.1.26)
-            Content-Type: application/json
-            Transfer-Encoding: chunked
+             b.有yarn-ha的配置方法
+            <configuration>
+                <!-- site specific yarn configuration properties -->
+                <property>
+                        <name>yarn.resourcemanager.ha.enabled</name>
+                        <value>true</value>
+                </property>
+                <property>
+                        <name>yarn.resourcemanager.cluster-id</name>
+                        <value>cluster1</value>
+                </property>
+                <property>
+                        <name>yarn.resourcemanager.ha.rm-ids</name>
+                        <value>bigdata001,bigdata002</value>
+                </property>
+                <property>
+                        <name>yarn.resourcemanager.hostname.bigdata001</name>
+                        <value>bigdata001</value>
+                </property>
+                <property>
+                        <name>yarn.resourcemanager.hostname.bigdata002</name>
+                        <value>bigdata002</value>
+                </property>
+                <property>
+                        <name>yarn.resourcemanager.zk-address</name>
+                        <value>bigdata001:2181,bigdata002:2181,bigdata003:2181</value>
+                </property>
+                <property>
+                        <name>yarn.nodemanager.aux-services</name>
+                        <value>mapreduce_shuffle</value>
+                </property>
+                <property>
+                        <name>yarn.log-aggregation-enable</name>
+                        <value>true</value>
+                </property>
+            </configuration>
 
-三、HadoopHA与KNOX集成部分
+六、分发hadoop的配置文件
+    scp  -r ${HADOOP_HOME}/etc/hadoop/  bigdata002:${HADOOP_HOME}/etc/
+    scp  -r ${HADOOP_HOME}/etc/hadoop/  bigdata003:${HADOOP_HOME}/etc/
+    scp  -r ${HADOOP_HOME}/etc/hadoop/  bigdata004:${HADOOP_HOME}/etc/
+    scp  -r ${HADOOP_HOME}/etc/hadoop/  bigdata005:${HADOOP_HOME}/etc/
+七、初始hadoop集群
+        1.启动journalnode(在规划的journalnode主机上执行)
+                因为我们的journalnode规划在bigdata001,bigdat002上，
+                因此我们可以只在这三台机器上执行如下命令：
+                ${HADOOP_HOME}/sbin/hadoop-daemons.sh start journalnode
 
-cd /bigdata/software/knox-0.8.0/conf/topologies
-vim sandbox.xml
-配置内容如下
-     1.在gateway中添加如下配置
-        <provider>
-           <role>ha</role>
-           <name>HaProvider</name>
-           <enabled>true</enabled>
-           <param>
-               <name>WEBHDFS</name>
-               <value>maxFailoverAttempts=3;failoverSleep=1000;maxRetryAttempts=300;retrySleep=1000;enabled=true</value>
-           </param>
-        </provider>
-    2.修改server为如下配置，其中当前active的namenode配到第一个
-        <service>
-            <role>WEBHDFS</role>
-            <url>http://bigdata6:50070/webhdfs</url>
-            <url>http://bigdata7:50070/webhdfs</url>
-        </service>
+        2.启动zookeeper (如果zookeeper在前面安装的时候已经启动了，就不必再启动了)
+           
+        3.格式化zkfc(目的就是要在zookeeper机器中创建[hadoop-ha]节点,用于保证hadoop集群的ha)
+                因为zkfc要担当起集群中切换的使命，只需在活动主节点上执行这个命令，备用主节点不要执行。
+                因为本案例中bigdata001为活动主节点，bigdata002为备用主节点。只需在bigdata001上执行这个命令。
+                在bigdata001上执行：  ${HADOOP_HOME}/bin/hdfs  zkfc  -formatzk
+                在bigdata2上执行: ${zookeeper_home}/bin/zkcli.sh
+                        输入：ls /  可以看到 hadoop-ha节点
+                        输入：ls /hadoop-ha  可以看到cluster1节点
+        4.格式化活动主节点(在bigdata001上执行 )
+                格式：  ${HADOOP_HOME}/bin/hdfs  namenode  -format
+                启动：  ${HADOOP_HOME}/sbin/hadoop-daemon.sh  start  namenode
+                验证：jps能看到namenode
+        5.格式化备用主节点(在bigdata7上执行 )
+                格式：${HADOOP_HOME}/bin/hdfs  namenode  -bootstrapstandby
+                启动：${HADOOP_HOME}/sbin/hadoop-daemon.sh  start  namenode
+                验证：jps能看到namenode
+        6.启动zkfc(在bigdata001、bigdata002上执行)
+                在bigdata001上执行: ${HADOOP_HOME}/sbin/hadoop-daemon.sh start zkfc
+                在bigdata002上执行: ${HADOOP_HOME}/sbin/hadoop-daemon.sh start zkfc
+
+                ${HADOOP_HOME}/sbin/hadoop-daemons.sh stop zkfc
+
+                验证： dfszkfailovercontroller
+        7.启动datanode(在主节点上执行)
+                 在bigdata001上执行: ${HADOOP_HOME}/sbin/hadoop-daemons.sh start datanode
+                验证：在datanode节点上jps能看到 datanode
+                                ${HADOOP_HOME}/sbin/hadoop-daemons.sh start datanode
+
+        8.日常维护
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh start namenode
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh start datanode
+            ${HADOOP_HOME}/sbin/yarn-daemons.sh start resourcemanager
+            ${HADOOP_HOME}/sbin/yarn-daemons.sh start nodemanager
+ 
+六、验证hadoop集群
+        1.验证hdfs
+                a.在不同的主机上执行jps命令可以看到相应的进程
+                b.在windows上用浏览器查看：http://bigdata001:50070 #能看到namenode的管理界面
+                c.我们的bigdata6、bigdata7一个为ha的active状态,另一个则是standby状态。
+        2.验证yarn
+                a.在不同的主机上执行jps命令可以看到相应的进程
+                b.在windows上用浏览器查看：http://bigdata001:8088  #能看到yarn的管理界面
+                c.可以成功执行单词计数示例程序：
+                  ${HADOOP_HOME}/bin/hadoop  jar  ${HADOOP_HOME}/share/hadoop/mapreduce/ hadoop-mapreduce-examples-3.0.0-beta1.jar  作业名称 /输入目录 /输出目录
+                  ${HADOOP_HOME}/bin/hadoop  jar  ${HADOOP_HOME}/share/hadoop/mapreduce/ hadoop-mapreduce-examples-3.0.0-beta1.jar  wordcount  /data/mr/in/ /data/mr/out/test001
+
+
+
+
+
