@@ -23,7 +23,7 @@
     Java(TM) SE Runtime Environment (build 1.8.0_151-b12)
     Java HotSpot(TM) 64-Bit Server VM (build 25.151-b12, mixed mode)
 分发环境变量
-    scp ~/.bashrc bigdata002:~/.rcbash
+    scp ~/.bashrc bigdata002:~/.bashrc
     scp ~/.bashrc bigdata003:~/.bashrc
     scp ~/.bashrc bigdata004:~/.bashrc
     scp ~/.bashrc bigdata005:~/.bashrc

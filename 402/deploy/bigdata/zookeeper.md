@@ -21,7 +21,7 @@
         export ZOOKEEPER_HOME=/cloudstar/software/zookeeper-3.3.6
         export PATH=$PATH:$ZOOKEEPER_HOME/bin
         分发环境变量
-        scp ~/.bashrc bigdata002:~/.rcbash
+        scp ~/.bashrc bigdata002:~/.bashrc
         scp ~/.bashrc bigdata003:~/.bashrc
         scp ~/.bashrc bigdata004:~/.bashrc
         scp ~/.bashrc bigdata005:~/.bashrc
