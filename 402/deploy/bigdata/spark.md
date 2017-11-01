@@ -110,7 +110,7 @@
             创建文夹： hadoop fs -mkdir /test/data/
             上传文件： hadoop fs -copyFromLocal ${SPARK_HOME}/README.md /test/data
         b.在spark-shell客户端中执行如下命令
-            var readmeFile= sc.textFile("hdfs://bigdata001:9000/test/data/README.md")
+            var readmeFile= sc.textFile("hdfs://bigdata002:9000/test/data/README.md")
             readmeFile.collect
             readmeFile.count
         c.测试结果

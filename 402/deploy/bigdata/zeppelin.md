@@ -95,3 +95,5 @@ http://files.grouplens.org/datasets/movielens/ml-100k.zip
 [root@chinac82 ml-100k]# hadoop fs -put u.user u.item u.data  /data/sparktd/
 剩下的操作见zeppelin页面
 
+
+
