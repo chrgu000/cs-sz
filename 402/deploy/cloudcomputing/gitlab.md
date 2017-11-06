@@ -12,5 +12,12 @@ chmod +x /usr/local/bin/docker-compose
 
 docker-compose -v
 
+
+
 docker-compose up -d
+
+
+cd /cloudstar/software
+
+docker-compose down
 
