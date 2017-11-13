@@ -5,8 +5,8 @@
 
 ## 探索历程
 ```
-1.后端演进：原生jar—>原生docker—>docker-compose—>mesos—>k8s
-2.前端演进：原生应用—>webpack打包+Nginx—>原生docker—>docker-compose—>mesos—>k8s     
+    1.后端演进：原生jar—>原生docker—>docker-compose—>mesos—>k8s
+    2.前端演进：原生应用—>webpack打包+Nginx—>原生docker—>docker-compose—>mesos—>k8s     
 ```
 ##服务整体规划
 ![](images/arch001.png)
@@ -69,30 +69,27 @@
            
 ```
 
-
-
-
 ##gitlab项目规划
 ![](images/gitlab.png)
 ```
 gitlab中把项目分开
-1.前端project
-2.后端project
-3.配置project
-4.文档管理project
+    1.前端project
+    2.后端project
+    3.配置project
+    4.文档管理project
 ```
 ##gitlab前端项目规划
 ![](images/gitlabFront.png)
 ```
 前端project中区分相关module，每个module是完整的Vue工程，
 通过package.json来管理前端依赖项。
-1.合作module
-2.营销module
-3.宣传module
-4.管理module
-5.deployment中放置前端项目Dockerfile模板
-9.sonar-project.properties如果使用sonar进行代码检查需要配置
-10.build_push_deploy_jenkins_k8s_402.sh是Jenkins调用的入口脚本
+    1.合作module
+    2.营销module
+    3.宣传module
+    4.管理module
+    5.deployment中放置前端项目Dockerfile模板
+    9.sonar-project.properties如果使用sonar进行代码检查需要配置
+    10.build_push_deploy_jenkins_k8s_402.sh是Jenkins调用的入口脚本
 ```
 ##webstorm规划
 ![](images/webstorm02.png)
@@ -105,25 +102,96 @@ gitlab中把项目分开
 ```
 后端project中区分相关module，每个module是完整的maven工程，可以允许的springboot工程。
 通过父子maven工程来管理通用的依赖项。
-1.验证相关module
-2.路由相关module
-3.eureka注册中心module
-4.config-server配置中心module
-5.zipkin追踪中心module
-6.monitor监控中心module
-7.x-pay支付微服务
-8.x-file文件微服务
-9.deployment中放置后端项目Dockerfile模板
-10.sonar-project.properties如果使用sonar进行代码检查需要配置
-11.build_push_deploy_jenkins_k8s_402.sh是Jenkins调用的入口脚本
-12.common中放置多个业务module中使用的工具方法和工具类库，不需要时springboot的工程
+    1.验证相关module
+    2.路由相关module
+    3.eureka注册中心module
+    4.config-server配置中心module
+    5.zipkin追踪中心module
+    6.monitor监控中心module
+    7.x-pay支付微服务
+    8.x-file文件微服务
+    9.deployment中放置后端项目Dockerfile模板
+    10.sonar-project.properties如果使用sonar进行代码检查需要配置
+    11.build_push_deploy_jenkins_k8s_402.sh是Jenkins调用的入口脚本
+    12.common中放置多个业务module中使用的工具方法和工具类库，不需要时springboot的工程
+```
+
+## 玩转流程的突出问题
+```
+1.前端端工程结构的问题  
+  a.尽量采用统一的project管理多个module的机制. 为后续Dockerfile模板化，k8s模板化提供基础
+  b.公共代码（没有好的方案，只能重复）
+2.后端工程结构的问题？
+  a.尽量采用统一的project管理多个module的机制. 为maven依赖，module 配置文件,Dockerfile模板化，k8s模板化的管理提供基础
+  b.公用代码尽量抽取到common module，此模块不需要打包和生成镜像，只在编译阶段使用。 
+  
+
+3.git和Jenkins配合使用的问题？  
+    a.用git的版本来控制代码的版本
+    b.git的分支来控制代码的预期环境 
+    c.用git的分支触发Jenkins不同的项目，dev的push event 和master的merge event
+    d.Jenkins的不同项目会触发相应的脚本，进而对项目进行编译，打包，image，push image，k8s部署
+    e.部署脚本可以只有一套，不同环境可以对调用参数进行判断，进而定制个性的部分
+
+4.网络方案的问题？
+  采用flannel网络，扁平化整个大的虚拟网络，所有容器的IP之间应该能够相互访问
+  [所有服务一律使用IP，不能使用服务名称,在springboot的配置文件中配置preferIpAddress: true或prefer-ip-address: true]
+5.监控问题？
+  可以采用kube-let内置的cadvisor+influxDB+grafna来实现对k8s集群的监控，收集和展现
+6.日志问题？
+  可以采用elk的方案对k8s集群的日志进行收集，存储和分析。 
+7.ingress问题？
+  只有前端在大流量下才需要ingress，生产当中没有使用，自己测试了一下可以通过。直接使用Nginx就可以。
+  
+8.存储的问题？
+  尽量采用PV和PVC的方式为k8s挂载各种存储方案，我们目前采用了nfs的方案。
+      
+      存储策略
+          ReadWriteOnce：是最基本的方式，可读可写，但只支持被单个Pod挂载。
+          ReadOnlyMany：可以以只读的方式被多个Pod挂载。
+          ReadWriteMany：这种存储可以以读写的方式被多个Pod共享。不是每一种存储都支
+      存储类别：（见知识部分）
+            
+9.模板化的问题：尽量简单化：
+     1.所有前端后端module采用统一的规范
+     2.maven依赖配置，Dockerfile模板，k8s模板，都是为了统一化共性的东西，简单化
+     3.控制脚本名称统一，调用格式统一
+     
+10.配置应该放到哪里的问题
+     a.configMap:必须在service启动以前存在，并不能热更新
+       比较适合服务启动时的较为固定的配置，可以通过DownWard进行注入
+     b.k8s部署模板的env字段中：可以通过脚本生成个性化的替换值
+       比较适合服务启动时根据环境而变化的配置
+     c.springboot中的yaml文件：尽量不配置在这里，这里和代码耦合度太强，只能通过重新编译源代码来改变
+       比较适合启动服务，必须链接config-service的信息。本来不想配置到这里，但是，启动服务必须的东西还是要有的。
+     d.gitLab中：尽量把所有的配置，放到git中，
+       一方面可以利用gitLab做版本控制，另一方面可以配合rabbitMq可以实现服务配置的热更新
+
+11.前后端配合的问题？
+    a.前端可以使用vue2，ng4等最新的方案。
+    b.前端在编译阶段需要确定后端的gateway地址，以适应不同环境的gateway地址变更
+    c.前端的服务注册和发现可以使用ingress+DNS的方案
+    d.后端的服务注册和发现可以使用eureka方案
+         
+12.蓝绿部署，滚动升级，版本回退的问题？
+    这部分的概念成分比较大，技术难度不大，先阶段没有用到？
+13.服务依赖的问题？
+    这部分k8s没有看到成熟的解决方案，还不如mesos。
+    
+14.重心的问题
+    团队开发人员多，运维人员少，尽量在开发端控制整个流程。
+    
+15.服务拆分的原则
+   控制变化，公用不变的部分抽取为微服务，变化的部分为微服务的调用    
+   
+16.两端定死
+   eureka集群列表定死，为后端微服务注册提供稳定地址
+   gateway列表定死，为前端微服务访问提供稳定的地址   
+
 ```
 
 
-
-
-
-## kubernetes和spring-cloud结合技巧
+## 整个流程的突出特性
 ```
 系统特点： 
     个性和共性要统一,个性的东西可以出现多次，共性的事物只出现一次。
@@ -150,125 +218,15 @@ gitlab中把项目分开
           
 ```
 
-
+## 还需思考的领域
 ```
-1.网络方案的问题？
-  采用flannel网络，扁平化整个大的虚拟网络，所有容器的IP之间应该能够相互访问
-2.监控问题？
-  可以采用kube-let内置的cadvisor+influxDB+grafna来实现对k8s集群的监控，收集和展现
-3.日志问题？
-  可以采用elk的方案对k8s集群的日志进行收集，存储和分析。 
-4.ingress问题？
-  只有前端在大流量下才需要ingress，生产当中没有使用，自己测试了一下可以通过。直接使用Nginx就可以。
-  
-5.存储的问题？
-  尽量采用PV和PVC的方式为k8s挂载各种存储方案，我们目前采用了nfs的方案。
-      
-      存储策略
-          ReadWriteOnce：是最基本的方式，可读可写，但只支持被单个Pod挂载。
-          ReadOnlyMany：可以以只读的方式被多个Pod挂载。
-          ReadWriteMany：这种存储可以以读写的方式被多个Pod共享。不是每一种存储都支
-      存储类别：（见知识部分）
-            
-6.模板化的问题：尽量简单化：
-     1.所有前端后端module采用统一的规范
-     2.maven依赖配置，Dockerfile模板，k8s模板，都是为了统一化共性的东西，简单化
-     3.控制脚本名称统一，调用格式统一
-     
-7.配置应该放到哪里的问题
-     a.configMap:必须在service启动以前存在，并不能热更新
-       比较适合服务启动时的较为固定的配置，可以通过DownWard进行注入
-     b.k8s部署模板的env字段中：可以通过脚本生成个性化的替换值
-       比较适合服务启动时根据环境而变化的配置
-     c.springboot中的yaml文件：尽量不配置在这里，这里和代码耦合度太强，只能通过重新编译源代码来改变
-       比较适合启动服务，必须链接config-service的信息。本来不想配置到这里，但是，启动服务必须的东西还是要有的。
-     d.gitLab中：尽量把所有的配置，放到git中，
-       一方面可以利用gitLab做版本控制，另一方面可以配合rabbitMq可以实现服务配置的热更新
-         
-
-
-
-
-
-
-       8.蓝绿部署，滚动升级，版本回退的问题？
-            这部分的概念成分比较大，技术难度不大，先阶段没有用到？
-
-
-
-
-8.git使用的问题？  
-    1.用git的版本来控制代码的版本
-    2.git的分支来控制代码的预期环境 
-    3.用git的分支触发Jenkins不同的项目，dev的push event 和master的merge event
-9.Jenkins的问题？
-
-4.Jenkins的不同项目会触发相应的脚本，进而对项目进行编译，打包，image，push image，k8s部署
-5.部署脚本可以只有一套，不同环境可以对调用参数进行判断，进而定制个性的部分
-```
-
-```
-
-后续提升点
-
-
-
-
-
-存储
-
-
-           
-           1.common统一为一个module，提高复用率，减少代码重复
-           2.利用git和configure server外化配置，并提供module级别细粒度控制.
-           3.利用rabbiMQ和configuresever实现配置热更新，并通过git push event 事件，ii自动更新
-           采用zipkin和springboot admin进行服务跟踪和监控
-           
-           4.采用sonar进行自动化测试
-           
-           5.开发端控制运维层次的流程
-           
-           采用docker和k8s的方案对服务进行部署
-           
-           
-        
-           
-
-           
-           运维工作 开发化、重代码，轻Jenkins
-           
-           kongzhi.bianhua
-           配置的作用域和优先级
-           
-           共性个性 统一分布。多元一元
-           
-           
-           前端打包时动态指定后端入口
-           2.存储使用k8s的pvc pv 挂载nfsooooooì、啦
-           
-           
-           2.git
-           
-           
-           
-           1.分合思想
-           2.边界思想。前端负载和gateway负载
-           4.两端钉死图
-           
-           不足之处
-           
-           
-           
-           
-        
-           hystrix
-           linquesql
-           公共服务抽取
-           公共代码抽取
-           代码质量提升
-           异构系统集成
-           前端工程化，服务端渲染 
-           node 层加入
-        
-
+    分合思想
+    hystrix
+    linquesql
+    公共服务抽取
+    公共代码抽取
+    代码质量提升
+    异构系统集成
+    前端工程化，服务端渲染 
+    node 层加入
 ```
