@@ -33,14 +33,31 @@
                   marketing-portal:用户洞察平台
                   apistore-portal:数据合作平台
               后端： 
-                  通用服务：
+                  通用性服务：
                           eureka-service：微服务的注册中心，维护整个spring-cloud微服务的entrypoint。[pod,container,service的entrypoint]，可以形成集群，地址固定
-                          config-service：微服务的配置中心,维护整个spring-cloud微服务的最灵活配置，配合rabbitMQ可以实现微服务配置的热更新，可以形成集群，地址随机调度，注册到eureka-service
-                          
-         
-                  核心业务：
-  c.数据层：
-
+                          config-service：微服务的配置中心, 维护整个spring-cloud微服务的最灵活配置，配合rabbitMQ可以实现微服务配置的热更新，可以形成集群，地址随机调度，注册到eureka-service
+                          gateway-service:微服务的网关中心，维护整个spring-cloud微服务的网关信息，对服务进行转发和过滤，可以形成集群，地址固定
+                          zipkin-service：微服务的追踪中心，维护整个spring-cloud微服务的服务调用关系，跟踪每一次调用的流程信息，不能形成集群，地址固定
+                          monitor-service:微服务的监控中心，用于监控整个pring-cloud微服务的运行状态，不能形成集群，地址固定
+                  业务性服务：
+                          authoer-service:用于对不同微服务进行验证和授权，service集群由k8s管理
+                          apistore-service:用于和电信进行进行交互，service集群由k8s管理
+                          xpay-service:用于多种充值业务，支付宝，银联，微信支付等
+                          xfs-service:用于对外提供文件读写服务,可以支持local，nfs,hdfs,ceph等
+                          shell-executer:用于远端执行shell命令，【现阶段用于，控制异地节点的大数据应用，后续可以被其他服务依赖】
+                  公用性代码：
+                          common：是所有spring-cloud微服务的工具性代码（StringUtils,DateUtils等）
+                  
+  c.数据层：存储是整个微服务的状态信息
+           mysql:用于存储账户信息，电信数据解析后的信息等各种业务信息
+           redis：用于提供数据缓存，加速响应速度
+           nfs：用于存储用户上传的协议文件等（后续可以考虑使用ceph等分布式文件系统替换）
+           电信数据源：
+           联通数据源：
+           移动数据源：
+           银联数据源：
+           其他数据源：
+           
 ```
 
 ##gitlab项目规划
@@ -103,4 +120,10 @@ gitlab中把项目分开
 3.用git的分支触发Jenkins不同的项目
 4.Jenkins的不同项目会触发相应的脚本，进而对项目进行编译，打包，image，push image，k8s部署
 5.部署脚本可以只有一套，不同环境可以对调用参数进行判断，进而定制个性的部分
+
+
+模板化的问题
+配置应该放到哪里
+存储
+蓝绿部署，滚动升级的问题
 ```
