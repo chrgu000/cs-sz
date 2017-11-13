@@ -1,8 +1,8 @@
 
 ## 机器列表和集群规划
 ![](images/cluster001.png)
-！！！规划图
-
+## 集群规划
+![](images/cluster.png)
 ## 探索历程
 ```
     1.后端演进：原生jar—>原生docker—>docker-compose—>mesos—>k8s
