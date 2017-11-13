@@ -1,5 +1,11 @@
 
-##gitlab项目规划
+## 机器列表和集群规划
+![](images/cluster001.png)
+```
+
+```
+
+##服务整体规划
 ![](images/arch001.png)
 ```
 1.总体分为面向三个群体进行服务，developers,operaters,clients
@@ -126,4 +132,16 @@ gitlab中把项目分开
 配置应该放到哪里
 存储
 蓝绿部署，滚动升级的问题
+
+网络方案问题
+
+ingress问题
+监控问题
+日志问题
+
+
+
+
+           1.后端演进：原生jar—>原生docker—>docker-compose—>mesos—>k8s
+           2.前端演进：原生应用—>webpack打包+Nginx—>原生docker—>docker-compose—>mesos—>k8s
 ```
