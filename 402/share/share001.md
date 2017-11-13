@@ -32,8 +32,13 @@
               前端：不通的项目有不同的portal
                   marketing-portal:用户洞察平台
                   apistore-portal:数据合作平台
-              后端：          
-                  
+              后端： 
+                  通用服务：
+                          eureka-service：微服务的注册中心，维护整个spring-cloud微服务的entrypoint。[pod,container,service的entrypoint]，可以形成集群，地址固定
+                          config-service：微服务的配置中心,维护整个spring-cloud微服务的最灵活配置，配合rabbitMQ可以实现微服务配置的热更新，可以形成集群，地址随机调度，注册到eureka-service
+                          
+         
+                  核心业务：
   c.数据层：
 
 ```
