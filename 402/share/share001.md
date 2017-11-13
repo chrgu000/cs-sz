@@ -1,10 +1,13 @@
 
 ## 机器列表和集群规划
 ![](images/cluster001.png)
-```
+！！！规划图
 
+## 探索历程
 ```
-
+1.后端演进：原生jar—>原生docker—>docker-compose—>mesos—>k8s
+2.前端演进：原生应用—>webpack打包+Nginx—>原生docker—>docker-compose—>mesos—>k8s     
+```
 ##服务整体规划
 ![](images/arch001.png)
 ```
@@ -66,6 +69,9 @@
            
 ```
 
+
+
+
 ##gitlab项目规划
 ![](images/gitlab.png)
 ```
@@ -94,9 +100,6 @@ gitlab中把项目分开
 
 
 
-
-
-
 ##gitlab后端项目规划
 ![](images/gitlabBackend.png)
 ```
@@ -120,19 +123,55 @@ gitlab中把项目分开
 
 
 
+## kubernetes和spring-cloud结合技巧
 ```
+
+```
+
+
+```
+系统特点： 
+    个性和共性要统一,个性的东西可以出现多次，共性的事物只出现一次。
+    一、有继承和覆盖特性事物的统一方案（差异化）
+        利用事物的继承和覆盖特性，共性的事物在project级别，个性的事物在module级别。
+        1.依赖关系的个性和共性：
+          利用maven的继承和依赖关系，共性依赖配置到project级别，个性依赖配置到module级别，实现依赖关系个性和共性的统一
+          
+        2.代码的个性和共性
+          利用maven提供的依赖机制，个性的代码编写到各种的module，共性的代码编写到common-module，实现代码个性和共性的统一
+          
+        3.配置的个性和共性
+          利用spring-cloud的配置继承和覆盖关系，共性配置存储到project级别，个性配置存储到module级别，并根据不同的env去适配不同的环境
+    二、无继承和覆盖特性的事物的统一方案（模板化）
+        利用模板来承载共性的事物，利用脚本来生成个性的事物
+        1.docker的个性和共性
+          将公共的Dockerfile抽取成模板，利用脚本生成各个module的Dockerfile
+          
+        2.k8s的个性和共性
+          将公共的k8s部署文件抽取成模板，利用脚本生成各个module的k8s部署文件
+          
+        3.部署脚本的个性和共性
+          公共脚本可以只有一套，通过不同的条件，运行不同的分支，来实现共性和个性的统一。  
+```
+
+
+```
+1.网络方案：采用flannel网络，扁平化整个大的虚拟网络，所有容器的IP之间应该能够相互访问
+2.spring-cloud
 1.用git的版本来控制代码的版本
 2.git的分支来控制代码的预期环境 
 3.用git的分支触发Jenkins不同的项目
 4.Jenkins的不同项目会触发相应的脚本，进而对项目进行编译，打包，image，push image，k8s部署
 5.部署脚本可以只有一套，不同环境可以对调用参数进行判断，进而定制个性的部分
+```
+
+```
 
 
 模板化的问题
 配置应该放到哪里
 存储
 蓝绿部署，滚动升级的问题
-
 网络方案问题
 
 ingress问题
@@ -142,6 +181,95 @@ ingress问题
 
 
 
-           1.后端演进：原生jar—>原生docker—>docker-compose—>mesos—>k8s
-           2.前端演进：原生应用—>webpack打包+Nginx—>原生docker—>docker-compose—>mesos—>k8s
+
+           
+           
+           
+           
+           
+           1.common统一为一个module，提高复用率，减少代码重复
+           2.利用git和configure server外化配置，并提供module级别细粒度控制.
+           3.利用rabbiMQ和configuresever实现配置热更新，并通过git push event 事件，ii自动更新
+           采用zipkin和springboot admin进行服务跟踪和监控
+           
+           4.采用sonar进行自动化测试
+           
+           5.开发端控制运维层次的流程
+           
+           采用docker和k8s的方案对服务进行部署
+           
+           
+           版本回退
+           
+           配置改动频次和唯一性，改变的方便性
+           docker文件的唯一性
+           k8s..one
+           
+           maven依赖的唯一性
+           
+           存储的唯一性
+           
+           统一存储
+           
+           
+           运维工作 开发化、重代码，轻Jenkins
+           
+           kongzhi.bianhua
+           配置的作用域和优先级
+           
+           共性个性 统一分布。多元一元
+           
+           
+           前端打包时动态指定后端入口
+           2.存储使用k8s的pvc pv 挂载nfsooooooì、啦
+           
+           
+           
+           1.统一的flannel网络
+           2.git
+           
+           
+           
+           1.分合思想
+           2.边界思想。前端负载和gateway负载
+           3.最佳实践
+           4.两端钉死图
+           
+           不足之处
+           
+           
+           
+           
+           
+           热更新配置msq 
+           统一日志处理elk 
+           hystrix
+           linquesql
+           公共服务抽取
+           公共代码抽取
+           代码质量提升
+           异构系统集成
+           前端工程化，服务端渲染 
+           node 层加入
+           
+           
+           
+           1.为什么不使用vue？
+             ng2本身使用typescript开发，很多第三方插件不支持。兼容第三方库时候有问题怎么办？
+             vue2采用es6语法开发，成本更低。
+           2.是否是完全架构
+             1.springcloud对服务注册和服务发现组件，支持最好的依次为eraka,consul,zookeeper.etcd等
+                consul是不是仅仅需要做服务祖册和服务发现，有没有kv存储的需求。
+             2.客户端负载，熔断，和网关组件没有提及。
+               ribbion,feign, zuul等是否需要？
+             3.项目通过dockerfile打包成image后，整个docker集群的运维管理怎么体现？mesos,k8s,还是什么？
+             4.项目是否牵涉文件流读取，如果有这方面的需求如何做到前后端服务能力
+           
+           3.rest :
+              1.统一response格式，异常处理，相应设置，
+              2.是否加入前缀和版本
+              3.是否加入验证
+           
+             开启压缩
+
 ```
