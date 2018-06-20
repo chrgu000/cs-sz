@@ -5,3 +5,7 @@
 2.登录mysql内部操作
     docker run -it mysql /bin/bash
 3.
+
+对bigdata001上的mysql数据进行备份
+tar -zcvf /mysql.tar.gz /data/data/mysql/data
+
