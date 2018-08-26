@@ -1,0 +1,26 @@
+{
+  "id": "/test/marathon-lb",
+  "instances": 1,
+  "constraints": [
+    [
+      "hostname",
+      "CLUSTER",
+      "bigdata06"
+    ]
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "docker.io/mesosphere/marathon-lb",
+      "privileged": true,
+      "network": "HOST"
+    }
+  },
+  "args": [
+    "sse",
+    "-m",
+    "http://10.100.134.6:8080",
+    "--group",
+    "external"
+  ]
+}

@@ -13,7 +13,7 @@ chmod +x /usr/local/bin/docker-compose
 docker-compose -v
 
 
-
+cd /cloudstar/software
 docker-compose up -d
 
 

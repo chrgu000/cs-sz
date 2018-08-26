@@ -1,0 +1,56 @@
+jenkins
+http://bigdata010:8080/jenkins
+admin/Pioneer@123
+
+gitlab
+http://bigdata010:10080/
+个人账户/个人密码
+
+harbor
+http://bigdata010/harbor/projects
+admin/Harbor12345
+
+
+upsource
+http://bigdata010:10008
+个人账户/个人密码
+
+
+sonar
+http://bigdata010:9000
+admin/admin
+
+
+kubernetes
+http://bigdata001:8080/ui
+无账户/无密码
+
+nexus
+http://bigdata009:9081
+admin / admin123
+
+zabbix
+http://bigdata009/zabbix
+Admin / zabbix
+
+
+
+hadoop
+http://bigdata001:50070
+
+
+spark
+http://bigdata001:8081
+
+
+alluxio
+http://bigdata001:19999
+###################################################
+以下为杨森安装
+Jenkins
+	http://10.68.9.2:8080/
+	admin Pioneer@123
+
+gitlab
+	http://10.68.9.2:18080/
+	root admin123456

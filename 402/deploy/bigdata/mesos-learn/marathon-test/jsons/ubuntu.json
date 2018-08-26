@@ -1,0 +1,14 @@
+{
+  "id": "ubuntu-marathon",
+  "instances": 2,
+  "cpus": 0.5,
+  "mem": 256,
+  "uris": [],
+  "cmd": "while true; do ( echo 'HTTP/1.0 200 Ok'; echo; echo date -u +%T 'Hello World From ubuntu!' ) | nc -l $PORT; done",
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "libmesos/ubuntu"
+    }
+  }
+}
