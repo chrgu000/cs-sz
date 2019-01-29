@@ -9,6 +9,6 @@ wget https://download.jetbrains.8686c.com/upsource/upsource-2017.1.1922.zip --no
 
 启动：
 /cloudstar/tool/upsource-2017.1.1922/bin/upsource.sh stop
-/cloudstar/tool/upsource-2017.1.1922/bin/upsource.sh configure --listen-port 10008 --base-url http://bigdata010
+/cloudstar/tool/upsource-2017.1.1922/bin/upsource.sh configure --listen-port 10081 --base-url http://bigdata009
 /cloudstar/tool/upsource-2017.1.1922/bin/upsource.sh start
 

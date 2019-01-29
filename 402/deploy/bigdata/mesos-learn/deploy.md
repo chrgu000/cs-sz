@@ -129,7 +129,7 @@ other_args="--selinux-enabled --insecure-registry 10.100.134.2:5000"
         {"repositories":["hello-world"]}
 
 ####################################################################################################################################
-六、mesos部署
+六、mesos部署（bigdata001  bigdata009  bigdata010）
 ####################################################################################################################################
 参考链接如下：
     http://www.linuxidc.com/Linux/2017-03/141478.htm
@@ -140,9 +140,9 @@ other_args="--selinux-enabled --insecure-registry 10.100.134.2:5000"
     http://blog.csdn.net/felix_yujing/article/details/51813224
 零、集群规划
 
-	bigdata03  mesos-master  mesos-slave marathon  chronos
-	bigdata04  mesos-slave
-	bigdata05  mesos-slave
+	bigdata001  mesos-master  mesos-slave marathon  chronos
+	bigdata009  mesos-slave
+	bigdata010  mesos-slave  marathon
 一、安装mesos-mater
     1.安装mesosphere
 		rpm -ivh http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
@@ -151,7 +151,7 @@ other_args="--selinux-enabled --insecure-registry 10.100.134.2:5000"
         编辑命令
          vim /etc/mesos/zk
         编辑内容
-         zk://bigdata03:2181,bigdata04:2181,bigdata05:2181/mesos
+         zk://bigdata001:2181,bigdata002:2181,bigdata003:2181/mesos
     3.启动服务&开机启动
     
         systemctl start  mesos-master mesos-slave marathon chronos
@@ -160,23 +160,57 @@ other_args="--selinux-enabled --insecure-registry 10.100.134.2:5000"
         systemctl stop    mesos-master mesos-slave marathon chronos
         systemctl disable mesos-master mesos-slave marathon chronos
     4.验证启动，webui
-        mesos界面：      http://10.100.134.3:5050
-        marathon界面：   http://10.100.134.3:8080
-        chronos界面：   http://10.100.134.3:4400
+        mesos界面：      http://bigdata001:5050
+        marathon界面：   http://bigdata001:8080
+        chronos界面：   http://bigdata001:4400
+        
+        
+        
+        
+ 
+        
+        
+++++++++++++++++++++++++++++++++++++++++       
+        九、配置marathon的默认端口     
+        Marathon WebUI默认的端口是8080，修改端口的方法：
+        1.编辑配置文件
+            编辑命令
+                vim /etc/default/marathon
+            添加内容：（配置端口和配置zk ）
+            export HTTP_PORT=8091
+            export MARATHON_HTTP_PORT=8091
+            MARATHON_MASTER="zk://bigdata001:2181,bigdata002:2181,bigdata003:2181/mesos"
+            MARATHON_ZK="zk://bigdata001:2181,bigdata002:2181,bigdata003:2181/marathon"
+            MARATHON_MESOS_USER="root"
+                                    
+                
+                
+                
+        2.分发配置文件
+            scp /etc/default/marathon bigdata04:/etc/default/marathon
+            scp /etc/default/marathon bigdata05:/etc/default/marathon
+        
+        3.重启marathon
+            systemctl stop marathon 
+            systemctl start marathon 
+            systemctl status marathon   
+++++++++++++++++++++++++++++++++++++++++
+        
+        
 二、安装mesos-slave
     1.安装mesosphere
         rpm -ivh http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
         yum -y install mesos
     2.配置zookeeper
         vim /etc/mesos/zk
-        zk://bigdata03:2181,bigdata04:2181,bigdata05:2181/mesos
+        zk://bigdata001:2181,bigdata002:2181,bigdata003:2181/mesos
     3.启动服务&开机启动
         systemctl start  mesos-slave mesos-master
         systemctl enable mesos-slave mesos-master
        
 三、运行Mesos任务，可以在Web界面查看task
     MASTER=$(mesos-resolve `cat /etc/mesos/zk`)
-    mesos-execute --master=$MASTER --name="cluster-test" --command="sleep 60"
+    mesos-execute --master=$MASTER --name="cluster-test002" --command="sleep 60"
 
 四、让mesos支持docker技术
     1.配置所有mesos-slave
@@ -329,8 +363,8 @@ Marathon WebUI默认的端口是8080，修改端口的方法：
     编辑命令
         vim /etc/default/marathon
     添加内容
-        export HTTP_PORT=8081
-        export MARATHON_HTTP_PORT=8081
+        export HTTP_PORT=8091
+        export MARATHON_HTTP_PORT=8091
 2.分发配置文件
     scp /etc/default/marathon bigdata04:/etc/default/marathon
     scp /etc/default/marathon bigdata05:/etc/default/marathon

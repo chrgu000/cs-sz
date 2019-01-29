@@ -1,5 +1,8 @@
 ![java部署](java.md)
 ![zookeeper部署](zookeeper.md)
+![kafka部署](./kafka/kafka.md)
 ![Hadoop部署](hadoop.md)
 ![scala部署](scala.md)
 ![spark部署](spark.md)
+![flink](flink.md)
+![storm部署](./storm/storm.md)

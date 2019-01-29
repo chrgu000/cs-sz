@@ -7,14 +7,18 @@
     bigdata005    slave
    在bigdata001上配置，而后同步到其他机器上。
 二、下载hadoop
-    wget http://mirror.bit.edu.cn/apache/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz
+    wget http://mirror.bit.edu.cn/apache/hadoop/common/hadoop-3.1.1/hadoop-3.1.1.tar.gz
 三、解压hadoop
-    tar -zxvf  hadoop-3.0.0-beta1.tar.gz  
+    tar -zxvf  hadoop-3.1.1.tar.gz  
 四、分发hadoop
-    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata002:/cloudstar/software/
-    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata003:/cloudstar/software/
-    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata004:/cloudstar/software/
-    scp -r /cloudstar/software/hadoop-3.0.0-beta1    bigdata005:/cloudstar/software/
+    scp -r /cloudstar/software/hadoop-3.1.1    bigdata002:/cloudstar/software/
+    scp -r /cloudstar/software/hadoop-3.1.1    bigdata003:/cloudstar/software/
+    scp -r /cloudstar/software/hadoop-3.1.1    bigdata004:/cloudstar/software/
+    scp -r /cloudstar/software/hadoop-3.1.1    bigdata005:/cloudstar/software/
+    
+    
+        scp -r /cloudstar/software/hadoop-3.1.1/etc    bigdata002:/cloudstar/software/hadoop-3.1.1
+        scp -r /cloudstar/software/hadoop-3.1.1/etc    bigdata003:/cloudstar/software/hadoop-3.1.1
 五、配置hadoop
     1.配置hadoop的运行环境
             vim ${HADOOP_HOME}/etc/hadoop/hadoop-env.sh
@@ -32,11 +36,11 @@
                 </property>
                 <property>
                     <name>hadoop.tmp.dir</name>
-                     <value>/cloudstar/software/hadoop-3.0.0-beta1/tmp</value>
+                    <value>/cloudstar/software/hadoop-3.1.1/tmp</value>
                 </property>
                 <property>
                     <name>ha.zookeeper.quorum</name>
-                    <value>bigdata001:2181,bigdata002:2181,bigdata003:2181</value>
+                    <value>bigdata002:2181,bigdata003:2181</value>
                 </property>
             </configuration>
 
@@ -82,7 +86,7 @@
                 </property>
                 <property>
                         <name>dfs.journalnode.edits.dir</name>
-                        <value>/cloudstar/software/hadoop-3.0.0-beta1/tmp/journal</value>
+                        <value>/cloudstar/software/hadoop-3.1.1/tmp/journal</value>
                 </property>
                 <property>
                         <name>dfs.ha.automatic-failover.enabled.cluster1</name>
@@ -112,8 +116,6 @@
                 bigdata001
                 bigdata002
                 bigdata003
-                bigdata004
-                bigdata005
 
 
         5.配置hadoop2的计算框架
@@ -205,13 +207,12 @@
                 因为我们的journalnode规划在bigdata001,bigdat002上，
                 因此我们可以只在这三台机器上执行如下命令：
                 ${HADOOP_HOME}/sbin/hadoop-daemons.sh start journalnode
-
         2.启动zookeeper (如果zookeeper在前面安装的时候已经启动了，就不必再启动了)
            
         3.格式化zkfc(目的就是要在zookeeper机器中创建[hadoop-ha]节点,用于保证hadoop集群的ha)
                 因为zkfc要担当起集群中切换的使命，只需在活动主节点上执行这个命令，备用主节点不要执行。
                 因为本案例中bigdata001为活动主节点，bigdata002为备用主节点。只需在bigdata001上执行这个命令。
-                在bigdata001上执行：  ${HADOOP_HOME}/bin/hdfs  zkfc  -formatzk
+                在bigdata001上执行：  ${HADOOP_HOME}/bin/hdfs  zkfc  -formatZK
                 在bigdata2上执行: ${zookeeper_home}/bin/zkcli.sh
                         输入：ls /  可以看到 hadoop-ha节点
                         输入：ls /hadoop-ha  可以看到cluster1节点
@@ -219,7 +220,7 @@
                 格式：  ${HADOOP_HOME}/bin/hdfs  namenode  -format
                 启动：  ${HADOOP_HOME}/sbin/hadoop-daemon.sh  start  namenode
                 验证：jps能看到namenode
-        5.格式化备用主节点(在bigdata7上执行 )
+        5.格式化备用主节点(在bigdata002上执行 )
                 格式：${HADOOP_HOME}/bin/hdfs  namenode  -bootstrapstandby
                 启动：${HADOOP_HOME}/sbin/hadoop-daemon.sh  start  namenode
                 验证：jps能看到namenode
@@ -236,6 +237,16 @@
                                 ${HADOOP_HOME}/sbin/hadoop-daemons.sh start datanode
 
         8.日常维护
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh stop journalnode
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh stop zkfc
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh stop namenode
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh stop datanode
+
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh start journalnode
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh start zkfc
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh start namenode
+            ${HADOOP_HOME}/sbin/hadoop-daemons.sh start datanode
+        
             ${HADOOP_HOME}/sbin/hadoop-daemons.sh start namenode
             ${HADOOP_HOME}/sbin/hadoop-daemons.sh start datanode
             ${HADOOP_HOME}/sbin/yarn-daemons.sh start resourcemanager

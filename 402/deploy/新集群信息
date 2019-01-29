@@ -2,6 +2,10 @@ jenkins
 http://bigdata010:8080/jenkins
 admin/Pioneer@123
 
+
+storm v1.2.2
+http://bigdata001:9980/index.html
+
 gitlab
 http://bigdata010:10080/
 个人账户/个人密码
@@ -37,14 +41,66 @@ Admin / zabbix
 
 hadoop
 http://bigdata001:50070
+zeppelin
+http://bigdata001:8089/
 
+
+solr:v7.4.0
+http://bigdata001:8783/solr/index.html#/
+
+rabbitMQ
+http://bigdata004:15672/#/
+
+
+hbase:v2.1.0
+http://bigdata001:16010/master-status
+bigdatd001 master slave
+bigdatd002 master slave
+bigdatd003 slave
+
+spark
+http://bigdata001:8081
 
 spark
 http://bigdata001:8081
 
 
+flink:v1.6.0
+http://bigdata001:8087
+bigdata001 master salve
+bigdata002 salve
+bigdata003 salve
+
+
+
+mesos:v1.6.1
+http://bigdata001:5050
+bigdatd001 master
+bigdatd009 slave
+bigdatd010 slave
+
+
+
 alluxio
 http://bigdata001:19999
+
+mqttd:v2.3.0
+http://bigdata009:18083
+admin / public
+
+
+ucd
+https://bigdata010:8443/#welcome
+admin / admin
+
+
+anchore(bigdata010)
+
+
+
+artifactory
+http://bigdata009:8601
+默认用户名/密码：admin/password
 ###################################################
 以下为杨森安装
 Jenkins

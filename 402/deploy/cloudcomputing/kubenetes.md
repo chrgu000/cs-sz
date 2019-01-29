@@ -126,6 +126,9 @@ kubectl -s http://bigdata03:8080 get node
 systemctl stop kube-apiserver.service kube-scheduler.service kube-controller-manager.service
 systemctl stop  kubelet.service kube-proxy.service
 
+systemctl start kube-apiserver.service kube-scheduler.service kube-controller-manager.service
+systemctl start  kubelet.service kube-proxy.service
+
 
 
 设置端口分配范围

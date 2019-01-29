@@ -32,7 +32,7 @@ spec:
         - containerPort: 9090
         #此处只能填写IP，直接填写主机名称不可以
         args:
-         -  --apiserver-host=http://10.99.21.21:8080
+         -  --apiserver-host=http://10.68.9.4:8080
         livenessProbe:
           httpGet:
             path: /
